@@ -1,0 +1,10 @@
+void sendjson(){
+  mySerial.print("{\"status\":\"havetrash\",");
+  mySerial.print("\"id\":\"2379206217\"");
+  mySerial.print(",\"is_full\":\"");mySerial.print(0);mySerial.print("\"");
+  mySerial.print(",\"new\":{\"garbage\":\"");mySerial.print(0);mySerial.print("\"}}");
+  mySerial.print(0x1A);
+	}
+	mySerial.print(",\"latitude\":\""mySerial.print(0mySerial.print("\"");
+	mySerial.print(",\"longitude\":\""mySerial.print(0mySerial.print("\"}");
+

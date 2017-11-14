@@ -1,0 +1,55 @@
+ #include <SoftwareSerial.h>
+int txPin=8;
+int rxPin=9;
+int i;
+String comdata="";
+SoftwareSerial mySerial(rxPin,txPin);
+void setup() {
+  delay(1000);
+  mySerial.begin(9600);
+  Serial.begin(9600);
+}
+
+void loop() {
+
+  // put your main code here, to run repeatedly:
+  mySerial.print("AT+CGCLASS=\"B\"\r");delay(500);
+    while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.println(comdata);
+  comdata="";
+  mySerial.print("AT+CGDCONT=1,\"IP\",\"CMNET\"\r");delay(500);
+    while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.println(comdata);
+  comdata="";
+  delay(500);
+  mySerial.print("AT+CGATT=1\r");delay(1000);//附着GPRS 网络；
+    while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.print(comdata);
+  comdata="";
+  mySerial.print("AT+CIPCSGP=1,\"CMNET\"\r");delay(500);// 设置GPRS 连接模式，接入点为：UNINET.
+    while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.print(comdata);
+  comdata="";
+  mySerial.print("AT+CIPSTART=\"TCP\",\"surine.cn\",\"7070\"\r");delay(1000);
+    while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.print(comdata);
+  comdata="";
+  do{
+    comdata="";
+    mySerial.print("AT+CIPSEND\r");delay(500);
+    while (mySerial.available() >0){
+    comdata+=char(mySerial.read());
+    delay(2);}
+    i++;
+  }while(i!=3 || comdata!=">");
+}

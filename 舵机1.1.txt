@@ -1,0 +1,81 @@
+#include <Servo.h>
+Servo myservo;  //创建一个舵机控制对象
+Servo myservo1;
+Servo myservo2;
+int pos = 0;
+int pos1 = 0;
+int pos2 = 0;
+String TYPE="";
+int _begin_[2];
+int _begin_1[2];
+int _begin_2[2];
+int if_continue=0; 
+float Udown=1,Vcc=5;
+
+void setup()
+{
+  Serial.begin(9600);
+  myservo.attach(6);  
+  myservo1.attach(10);  
+  myservo2.attach(12);
+  myservo.writeMicroseconds(1500); 
+  pinMode(3,INPUT); 
+  pinMode(4,INPUT); 
+  pinMode(13,INPUT); 
+  for(int i=0;i<50;i++){
+    myservo2.write(110);
+    delay(10);}
+  for(int i=0;i<50;i++){ 
+    myservo1.write(90);
+    delay(10);} 
+}
+void loop()
+{   _begin_2[0]=digitalRead(4);
+     delay(200);
+    _begin_2[1]=digitalRead(4);
+    Serial.println(_begin_2[0]);
+    _begin_1[0]=digitalRead(3);
+     delay(200);
+    _begin_1[1]=digitalRead(3);
+    Serial.println(_begin_1[0]);   
+    _begin_[0]=digitalRead(13);
+     delay(200);
+    _begin_[1]=digitalRead(13); 
+    Serial.println(_begin_[0]);                        
+  if ((_begin_[0]==0 && _begin_[1]==0) ||(_begin_1[0]==0 && _begin_1[1]==0)||(_begin_2[0]==0 && _begin_2[1]==0))                                      // 该值为检测结果需要注意赋值)//检测到物品为总开启开关
+  {  
+    for(int i=0;i<60;i++){ 
+      myservo.write(88);
+      delay(10);}           
+    myservo.writeMicroseconds(1500);
+    delay(1500); 
+    Udown = analogRead(A0);  
+    Udown=Udown/1023*Vcc;  
+    Serial.print(Udown,3);
+    Serial.println();
+    if(0<Udown && Udown<2){
+      for(int i=0;i<50;i++){ 
+        myservo1.write(20);
+        delay(10); }
+      for(int i=0;i<50;i++){ 
+        myservo1.write(90);
+        delay(10); }
+       }
+    else{
+      for(int i=0;i<50;i++){ 
+      myservo1.write(160);
+      delay(10);}  
+      for(int i=0;i<50;i++){ 
+      myservo1.write(90);
+      delay(10);} 
+      delay(100);
+      for(int i=0;i<50;i++){
+      myservo2.write(170);
+      delay(10);}
+      for(int i=0;i<50;i++){
+      myservo2.write(110);
+      delay(10);}
+        }
+    }               
+}
+  

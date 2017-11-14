@@ -1,0 +1,150 @@
+#include <Servo.h>
+#include <SoftwareSerial.h>
+int txPin=8;
+int rxPin=9;
+int i;
+String type="";
+String comdata="";
+SoftwareSerial mySerial(rxPin,txPin);
+Servo myservo;
+Servo myservo1;
+Servo myservo2;
+int pos = 0;
+int pos1 = 0;
+int pos2 = 0;
+String TYPE="";
+int _begin_[2];
+int _begin_1[2];
+int _begin_2[2];
+int if_continue=0; 
+float Udown=1,Vcc=5;
+void sendjson(){
+  mySerial.print("{\"status\":\"havetrash\",");
+  mySerial.print("\"id\":\"2379206217\"");
+  mySerial.print(",\"is_full\":\"");mySerial.print(0);mySerial.print("\"");
+  mySerial.print(",\"new\":{\"garbage\":\"");mySerial.print(0);mySerial.print("\"}}");
+  mySerial.print(0x1A);
+}
+void setup()
+{
+  delay(1000);
+  mySerial.begin(9600);
+  Serial.begin(9600);
+  myservo.attach(6);  
+  myservo1.attach(10);  
+  myservo2.attach(12);
+  myservo.writeMicroseconds(1500); 
+  pinMode(3,INPUT); 
+  pinMode(4,INPUT); 
+  pinMode(13,INPUT); 
+  for(int i=0;i<50;i++){
+    myservo2.write(110);
+    delay(10);}
+  for(int i=0;i<50;i++){ 
+    myservo1.write(90);
+    delay(10);} 
+}
+void loop()
+{   _begin_2[0]=digitalRead(4);
+     delay(200);
+    _begin_2[1]=digitalRead(4);
+    Serial.println(_begin_2[0]);
+    _begin_1[0]=digitalRead(3);
+     delay(200);
+    _begin_1[1]=digitalRead(3);
+    Serial.println(_begin_1[0]);   
+    _begin_[0]=digitalRead(13);
+     delay(200);
+    _begin_[1]=digitalRead(13); 
+    Serial.println(_begin_[0]);                        
+  if ((_begin_[0]==0 && _begin_[1]==0) ||(_begin_1[0]==0 && _begin_1[1]==0)||(_begin_2[0]==0 && _begin_2[1]==0))                          
+  {  
+    for(int i=0;i<60;i++){ 
+      myservo.write(88);
+      delay(10);}           
+    myservo.writeMicroseconds(1500);
+    delay(1500); 
+    Udown = analogRead(A0);  
+    Udown=Udown/1023*Vcc;  
+    Serial.print(Udown,3);
+    Serial.println();
+    if(0<Udown && Udown<2){
+      for(int i=0;i<50;i++){ 
+        myservo1.write(20);
+        delay(10); }
+      for(int i=0;i<50;i++){ 
+        myservo1.write(90);
+        delay(10); }
+        type="metal";
+       }
+    else{
+      for(int i=0;i<50;i++){ 
+      myservo1.write(160);
+      delay(10);}  
+      for(int i=0;i<50;i++){ 
+      myservo1.write(90);
+      delay(10);} 
+      delay(100);
+      for(int i=0;i<50;i++){
+      myservo2.write(170);
+      delay(10);}
+      for(int i=0;i<50;i++){
+      myservo2.write(110);
+      delay(10);}
+      type="plastic";}
+  mySerial.print("AT+CGCLASS=\"B\"\r");delay(500);
+  while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.println(comdata);
+  comdata="";
+  mySerial.print("AT+CGDCONT=1,\"IP\",\"CMNET\"\r");delay(500);
+  while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.println(comdata);
+  comdata="";
+  delay(500);
+  mySerial.print("AT+CGATT=1\r");delay(1000);//附着GPRS 网络；
+  while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.print(comdata);
+  comdata="";
+  mySerial.print("AT+CIPCSGP=1,\"CMNET\"\r");delay(500);// 设置GPRS 连接模式，接入点为：UNINET.
+  while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.print(comdata);
+  comdata="";
+  mySerial.print("AT+CIPSTART=\"TCP\",\"surine.cn\",\"7070\"\r");delay(1000);
+  while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.print(comdata);
+  comdata="";
+  do{
+    comdata="";
+    mySerial.print("AT+CIPSEND\r");delay(500);
+    while (mySerial.available() >0){
+    comdata+=char(mySerial.read());
+    delay(2);}
+    Serial.print(comdata);
+    if(comdata==">")
+      break;
+    i++;
+    Serial.print(i);
+  }while(i!=3);
+  comdata="";
+  mySerial.print("{\"status\":\"havetrash\",");delay(500);
+    while (mySerial.available() >0){
+  comdata+=char(mySerial.read());
+  delay(2);}
+  Serial.print(comdata);
+  comdata="";
+  mySerial.print("\"id\":\"2379206217\"");delay(500);
+  mySerial.print(",\"is_full\":\"");mySerial.print(0);mySerial.print("\"");delay(500);
+  mySerial.print(",\"new\":{\"garbage\":\"");mySerial.print(type);mySerial.print("\"}}");delay(500);
+  mySerial.print(0x1A);delay(500);
+  }
+}
